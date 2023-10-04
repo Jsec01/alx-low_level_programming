@@ -35,44 +35,69 @@ void rev_string(char *n)
  * Return: pointer to calling function
  */
 
-char *infinite_add(char *n1, char *n2, char *r, int size_r)
-{
-	int overflow = 0, i = 0, j = 0, digits = 0;
-	int val1 = 0, val2 = 0, temp_tot = 0;
+char *infinite_add(const char* num1, const char* num2, char* result, int max_result_size)
 
-	while (*(n1 + i) != '\0')
-		i++;
-	while (*(n2 + j) != '\0')
-		j++;
-	i--;
-	j--;
-	if (j >= size_r || i >= size_r)
-		return (0);
-	while (j >= 0 || i >= 0 || overflow == 1)
+{	int carry = 0;
+	int len1 = strlen(num1);
+	int len2 =strlen(num2);
+
+	int i = len1 - 1;
+	int j = len2 - 1;
+	int k = 0;
+
+	while (i >= 0 || j >= 0 || carry)
 	{
-		if (i < 0)
-			val1 = 0;
-		else
-			val1 = *(n1 + i) - '0';
-		if (j < 0)
-			val2 = 0;
-		else
-			val2 = *(n2 + j) - '0';
-		temp_tot = val1 + val2 + overflow;
-		if (temp_tot >= 10)
-			overflow = 1;
-		else
-			overflow = 0;
-		if (digits >= (size_r - 1))
-			return (0);
-		*(r + digits) = (temp_tot % 10) + '0';
-		digits++;
-		j--;
+		int digit1 = (i >= 0) ? num1[i] - '0' : 0;
+		int digit2 = (j >= 0) ? num2[j] - '0' : 0;
+
+		int sum = digit1 + digit2 + carry;
+		carry = sum / 10;
+		result[k] = (sum % 10) + '0';
+
 		i--;
+		j--;
+		k++;
+
+		if (k >= max_result_size - 1)
+		{	// Overflow, result buffer not large enough
+			return NULL;
+		}
 	}
-	if (digits == size_r)
-		return (0);
-	*(r + digits) = '\0';
-	rev_string(r);
-	return (r);
+
+	rsult[k] = '\0';
+
+	//Reverse the result string
+	for (int start = 0, end = k - 1; start < end; start++, end--) 
+		{	
+			char temp = result[start]; result[start] = result[end]; result[end] = temp;
+		}
+	
+	return result;
+}
+
+int main() 
+{
+	char num1[MAX_DIGITS], num2[MAX_DIGITS];
+	char result[MAX_DIGITS + 1];
+
+	printf("Enter the first number:");
+	
+	scanf("%s", num1);
+	
+	printf("Enter the second number:");
+
+	scanf("%s", num2);
+
+	char* sum = infinite_add(num1, num2, result, MAX_DIGITS + 1);
+
+	if (sum != NULL)
+	{
+		printf("Sum: %s\n", sum);
+	}
+	else 
+	{
+		prinf("Overflow: Result is too large for the buffer.\n");
+	}
+
+	return 0;
 }
